@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.5.6.5" />
+    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.5.8.2" />
+    <PackageReference Include="Google.Protobuf" Version="3.15.2" />
+    <PackageReference Include="Grpc.Core" Version="2.35.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.35.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.35.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MagicOnion.Client" Version="4.1.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+    <PackageReference Include="System.CodeDom" Version="5.0.0" />
+    <PackageReference Include="ZLogger" Version="1.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\dotnet_grpc_bench\Shared\**\*.cs" Link="Shared\%(RecursiveDir)\%(FileName)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="..\proto\**\*.proto" Link="Protos/%(RecursiveDir)\%(FileName)%(Extension)" GrpcServices="Client" />
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <Compile Update="BenchmarkConsoleOutputTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BenchmarkConsoleOutputTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="BenchmarkReportPageTemplate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BenchmarkReportPageTemplate.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <None Update="BenchmarkConsoleOutputTemplate.tt">
+      <LastGenOutput>BenchmarkConsoleOutputTemplate.cs</LastGenOutput>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+    </None>
+    <None Update="BenchmarkReportPageTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>BenchmarkReportPageTemplate.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

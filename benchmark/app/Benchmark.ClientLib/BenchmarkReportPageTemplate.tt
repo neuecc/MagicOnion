@@ -1,0 +1,354 @@
+﻿<#@ template language="C#" linePragmas="false" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Benchmark.ClientLib" #>
+
+<#
+    var client = Report.Client;
+    var config = Report.Config;
+    var summary = Report.Summary;
+    var requests = Report.Requests;
+
+    var lineColor = GetLineColor();
+    var barColor = GetColor(0);
+    var latencyColor = GetColor(1);
+    var histogramColor = GetColor(2);
+#>
+
+<!-- auto-generated -->
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>MagicOnion Benchmark</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous"/>
+    <!-- MDB -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.0.0/mdb.min.css"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-dark bg-dark box-shadow">
+            <div class="container d-flex">
+                <a class="navbar-brand" href="#">MagicOnion Benchmark</a>
+                <div class="collapse navbar-collapse" id="navbarText">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    </ul>
+                </div>
+                <span class="navbar-text"><#= client.Framework #> v<#= client.Version #></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="bg-light">
+            <div class="container" style="padding-top: 3rem;">
+
+                <h1 class="text-muted">Test Result</h1>
+                <p class="text-muted">ReportId: <#= summary.ReportId #></p>
+                <p class="text-muted">Period: <#= summary.Begin #> - <#= summary.End #></p>
+
+                <div class="table-responsive">
+                    <h2 class="text-muted">Client</h2>
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                            <th scope="col">OS</th>
+                            <th scope="col"># Process</th>
+                            <th scope="col">Memory</th>
+                            <th scope="col"># Concurrency</th>
+                            <th scope="col"># Connections</th>
+                            </tr>
+                        </thead>
+                        <tr>
+                            <td><#= client.Os #> (<#= client.Architecture #>)</td>
+                            <td><#= client.Processors #></td>
+                            <td><#= client.Memory #>GiB</td>
+                            <td><#= config.ClientConcurrency #></td>
+                            <td><#= config.ClientConnections #></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-responsive">
+                    <h2 class="text-muted">Summary</h2>
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <th scope="col"># Clients</th>
+                            <th scope="col"># Requests Ttl</th>
+                            <th scope="col">Duration</th>
+                            <th scope="col">Slowest</th>
+                            <th scope="col">Fastest</th>
+                            <th scope="col">Average</th>
+                            <th scope="col">Requests/sec</th>
+                        </thead>
+                        <tr>
+                            <td><#= summary.Clients #></td>
+                            <td><#= summary.Requests #></td>
+                            <td><#= FormatMs(summary.Duration.TotalSeconds) #> sec</td>
+                            <td><#= FormatMs(summary.Slowest.TotalMilliseconds) #> ms</td>
+                            <td><#= FormatMs(summary.Fastest.TotalMilliseconds) #> ms</td>
+                            <td><#= FormatMs(summary.Average.TotalMilliseconds) #> ms</td>
+                            <td><#= FormatMs(summary.Rps) #> rps</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <# if (requests.Any()) {#>
+                <# foreach(var request in requests) {#>
+                <div class="table-responsive">
+                    <h2 class="text-muted"><#= request.Key #></h2>
+                    <p>Summary</p>
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <th scope="col">Requests</th>
+                        <# foreach(var item in request.Summaries) { #>
+                            <th scope="col"><#= item.RequestCount #> req</th>
+                        <# } #>
+                        </thead>
+                        <tr>
+                            <td>Average</td>
+                        <# foreach(var item in request.Summaries) { #>
+                            <td><#= FormatMs(item.Duration.TotalMilliseconds) #> ms</td>
+                        <# } #>
+                        </tr>
+                        <tr>
+                            <td>Rps</td>
+                        <# foreach(var item in request.Summaries) { #>
+                            <td><#= FormatMs(item.Rps) #> rps</td>
+                        <# } #>
+                        </tr>
+                        <tr>
+                            <td>Errors</td>
+                        <# foreach(var item in request.Summaries) { #>
+                            <td><#= item.Errors #></td>
+                        <# } #>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <p>Status code distribution</p>
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <th scope="col">StatusCode</th>
+                            <th scope="col">Responses</th>
+                        </thead>
+                        <# foreach(var item in request.StatusCodes) { #>
+                        <tr>
+                            <td><#= item.StatusCode #></td>
+                            <td><#= item.Count #> responses</td>
+                        </tr>
+                        <# } #>
+                        </tbody>
+                    </table>
+
+                    <# if (request.ErrorCodes.Any()) {#>
+                    <p>Error distribution</p>
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <th scope="col">Count</th>
+                            <th scope="col">StatusCode</th>
+                            <th scope="col">Detail</th>
+                        </thead>
+                        <# foreach(var item in request.ErrorCodes) { #>
+                        <tr>
+                            <td><#= item.Count #></td>
+                            <td><#= item.StatusCode #></td>
+                            <td><#= item.Detail #></td>
+                        </tr>
+                        <# } #>
+                        </tbody>
+                    </table>
+                    <# } #>
+
+                    <canvas id="<#= request.Key #>Histogram"></canvas>
+                    <canvas id="<#= request.Key #>LatencyDistribution"></canvas>
+                    <canvas id="<#= request.Key #>RequestAvg"></canvas>
+                    <canvas id="<#= request.Key #>RequestStackBar"></canvas>
+
+                    <script>
+                        var ctx = document.getElementById("<#= request.Key #>Histogram");
+                        var myChart = new Chart(ctx, {
+                            type: 'horizontalBar',
+                            data: {
+                                labels: [
+                                <# foreach(var item in request.Histograms) { #>
+                                    "<#= FormatMs(item.Mark) #> [<#= item.Count #>]",
+                                <# } #>
+                                ],
+                                datasets: [
+                                {
+                                    label: "Frequency",
+                                    backgroundColor: "<#= histogramColor #>",
+                                    borderColor: "<#= histogramColor #>",
+                                    data: [
+                                    <# foreach(var item in request.Histograms) { #>
+                                        <#= FormatMs(item.Frequency) #>,
+                                    <# } #>
+                                    ]
+                                },
+                                ]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Response time histogram',
+                                    padding: 3
+                                },
+                                legend: {
+                                    labels: {
+                                        boxWidth: 30,
+                                        padding: 20
+                                    },
+                                    display: true
+                                },
+                                tooltips: {
+                                    mode: 'label' // data colum for tooltip
+                                },
+                                responsive: true
+                            }
+                        });
+                    </script>
+
+                    <script>
+                        var ctx = document.getElementById("<#= request.Key #>LatencyDistribution");
+                        var myChart = new Chart(ctx, {
+                            type: 'horizontalBar',
+                            data: {
+                                labels: [
+                                <# foreach(var item in request.Latencies) { #>
+                                    "<#= item.Percentile #>",
+                                <# } #>
+                                ],
+                                datasets: [
+                                {
+                                    label: "Latency(ms)",
+                                    backgroundColor: "<#= latencyColor #>",
+                                    borderColor: "<#= latencyColor #>",
+                                    data: [
+                                    <# foreach(var item in request.Latencies) { #>
+                                        <#= item.Duration.TotalMilliseconds #>,
+                                    <# } #>
+                                    ]
+                                },
+                                ]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Latency distribution',
+                                    padding: 3
+                                },
+                                legend: {
+                                    labels: {
+                                        boxWidth: 30,
+                                        padding: 20
+                                    },
+                                    display: true
+                                },
+                                tooltips: {
+                                    mode: 'label' // data colum for tooltip
+                                },
+                                responsive: true
+                            }
+                        });
+                    </script>
+
+                    <script>
+                        var ctx = document.getElementById("<#= request.Key #>RequestAvg");
+                        var myChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: [
+                                <# foreach(var item in request.Summaries) { #>
+                                    "<#= item.RequestCount #>",
+                                <# } #>
+                                ],
+                                datasets: [
+                                {
+                                    type: 'bar',
+                                    label: "Duration",
+                                    backgroundColor: "<#= barColor #>",
+                                    borderColor: "<#= barColor #>",
+                                    data: [
+                                    <# foreach(var item in request.Summaries) { #>
+                                        <#= item.Duration.TotalMilliseconds #>,
+                                    <# } #>
+                                    ]
+                                },
+                                {
+                                    type: 'line',
+                                    label: "Rps",
+                                    pointBackgroundColor: "<#= lineColor #>",
+                                    backgroundColor: "<#= lineColor #>",
+                                    borderColor: "<#= lineColor #>",
+                                    fill: false,
+                                    data: [
+                                    <# foreach(var item in request.Summaries) { #>
+                                        <#= item.Rps #>,
+                                    <# } #>
+                                    ]
+                                },
+                                ]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Duration & Rps',
+                                    padding: 3
+                                },
+                                legend: {
+                                    labels: {
+                                        boxWidth: 30,
+                                        padding: 20
+                                    },
+                                    display: true
+                                },
+                                tooltips: {
+                                    mode: 'label' // data colum for tooltip
+                                },
+                                responsive: true
+                            }
+                        });
+                    </script>
+                </div>
+                <#}#>
+                <#}#>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-muted" style="padding-top: 3rem;padding-bottom: 3rem;">
+        <div class=container>
+            <a href="#" class="btn btn-outline-info float-right" role="button">
+                <i class="fa fa-angle-up"></i>
+            </a>
+            <p class="text-center">
+                <a class="text-dark" href="https://github.com/cysharp/MagicOnion/">Visit the GitHub</a>
+            /
+            © 2021 Copyright:
+                <a class="text-dark" href="https://cysharp.co.jp/">Cysharp, Inc.</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+    <!-- MDB -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.0.0/mdb.min.js"></script>
+</body>
+
+</html>

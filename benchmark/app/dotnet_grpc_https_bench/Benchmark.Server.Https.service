@@ -1,0 +1,15 @@
+[Unit]
+Description=MagicOnion.Benchmark.Server.Https version 0.0.1
+
+[Service]
+ExecStart=/var/MagicOnion.Benchmark/server/Benchmark.Server.Https/Benchmark.Server.Https
+Restart=always
+RestartSec=10
+SyslogIdentifier=MagicOnion.Benchmark.Server.Https
+User=root
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_CLI_HOME=/tmp
+WorkingDirectory=/var/MagicOnion.Benchmark/server/Benchmark.Server.Https
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,21 @@
+{
+  "profiles": {
+    "ConsoleAppEcs": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "BENCH_S3BUCKET": "magiconionbenchmarkcdkstack-bucket83908e77-1ado8gtcl00cb",
+        "DFRAME_MASTER_CONNECT_TO_HOST": "localhost",
+        "DFRAME_WORKER_CLUSTER_NAME": "MagicOnionBenchmarkCdkStack-WorkerClusterB2BB5BD9-yLDvC4AGFi9t",
+        "IS_LOCAL": "true",
+        "DFRAME_WORKER_CONTAINER_NAME": "worker",
+        "DFRAME_WORKER_TASK_NAME": "MagicOnionBenchmarkCdkStackDFrameWorkerTaskDefC9B515A3",
+        "DFRAME_WORKER_IMAGE": "431046970529.dkr.ecr.ap-northeast-1.amazonaws.com/aws-cdk/assets:39a10b785f025f8e66bf2d6a74cc9e370bf0948552682849a392236f5e57c89c",
+        "DFRAME_WORKER_SERVICE_NAME": "MagicOnionBenchmarkCdkStack-DFrameWorkerService3C24E773-u7rDCEFuVHzN",
+        "BENCH_REPORTID": "abc-123"
+      }
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

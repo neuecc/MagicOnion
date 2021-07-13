@@ -1,0 +1,17 @@
+[Unit]
+Description=MagicOnion.Benchmark.Client version 0.0.1
+
+[Service]
+ExecStart=/var/MagicOnion.Benchmark/client/Benchmark.Client
+Restart=always
+RestartSec=10
+SyslogIdentifier=MagicOnion.Benchmark.Client
+User=root
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_CLI_HOME=/tmp
+Environment=BENCHCLIENT_RUNASWEB=true
+Environment=BENCHCLIENT_HOSTADDRESS=http://0.0.0.0:8080
+WorkingDirectory=/var/MagicOnion.Benchmark/client
+
+[Install]
+WantedBy=multi-user.target

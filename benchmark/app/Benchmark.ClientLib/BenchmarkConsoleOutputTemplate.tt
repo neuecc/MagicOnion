@@ -1,0 +1,42 @@
+﻿<#@ template language="C#" linePragmas="false" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Benchmark.ClientLib" #>
+
+<#
+#>
+
+Summary:
+  Name:	      	<#= Name #>
+  Count:      	<#= Count #>
+  Total:      	<#= FormatMs(Total) #> s
+  Slowest:    	<#= FormatMs(Slowest) #> ms
+  Fastest:    	<#= FormatMs(Fastest) #> ms
+  Average:    	<#= FormatMs(Average) #> ms
+  StdError:    	<#= FormatMs(StdErr) #> ms
+  StdDev:    	<#= FormatMs(StdDev) #> ms
+  Requests/sec:	<#= FormatMs(Rps) #>
+
+Response time histogram:
+<# foreach (var histgram in FormattedHistograms) { #>
+  <#= histgram #>
+<#}#>
+
+Latency distribution:
+<# foreach (var latency in Latencies) { #>
+  <#= latency.Percentile #> % in <#= FormatMs(latency.Latency.TotalMilliseconds) #> ms
+<#}#>
+
+Status code distribution:
+<# foreach (var statusCodeDistribution in FormattedStatusCodeDistributions) { #>
+  <#= statusCodeDistribution #>
+<#}#>
+
+<# if (FormattedErrorCodeDistributions.Any()) {#>
+Error distribution:
+<# foreach (var errorCodeDistribution in FormattedErrorCodeDistributions) { #>
+  <#= errorCodeDistribution #>
+<#}#>
+<#}#>

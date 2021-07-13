@@ -1,0 +1,88 @@
+{
+  "name": "aws-cdk-boilerplate",
+  "version": "0.1.0",
+  "private": "true",
+  "license": "MIT",
+  "scripts": {
+    "cdk": "cdk",
+    "deploy": "cdk deploy",
+    "diff": "cdk diff",
+    "fmt": "run-s fmt:eslint fmt:prettier",
+    "fmt:eslint": "eslint --ignore-path .gitignore --fix .",
+    "fmt:prettier": "prettier --ignore-path .gitignore --write .",
+    "lib:check": "ncu",
+    "lib:upgrade": "ncu -u",
+    "test": "jest"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ],
+    "*.{md,json}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@aws-cdk/core": "1.77.0",
+    "aws-sdk": "2.806.0",
+    "source-map-support": "0.x"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "1.77.0",
+    "@aws-cdk/aws-apigatewayv2": "1.77.0",
+    "@aws-cdk/aws-certificatemanager": "1.77.0",
+    "@aws-cdk/aws-ec2": "1.77.0",
+    "@aws-cdk/aws-elasticloadbalancingv2": "1.77.0",
+    "@aws-cdk/aws-iam": "1.77.0",
+    "@aws-cdk/aws-lambda": "1.77.0",
+    "@aws-cdk/aws-lambda-nodejs": "1.77.0",
+    "@aws-cdk/custom-resources": "1.77.0",
+    "@trivago/prettier-plugin-sort-imports": "^1.2.0",
+    "@types/aws-lambda": "8.10.64",
+    "@types/jest": "26.x",
+    "@types/node": "14.x",
+    "@typescript-eslint/eslint-plugin": "4.x",
+    "@typescript-eslint/parser": "4.x",
+    "aws-cdk": "1.77.0",
+    "esbuild": "0.8.21",
+    "eslint": "7.x",
+    "eslint-config-prettier": "6.x",
+    "eslint-config-standard": "16.x",
+    "eslint-plugin-import": "2.x",
+    "eslint-plugin-node": "11.x",
+    "eslint-plugin-prettier": "3.x",
+    "eslint-plugin-promise": "4.x",
+    "husky": "4.x",
+    "jest": "26.x",
+    "lint-staged": "^10.5.1",
+    "npm-check-updates": "9.x",
+    "npm-run-all": "4.x",
+    "parcel": "2.0.0-beta.1",
+    "prettier": "2.x",
+    "prettier-plugin-packagejson": "2.x",
+    "ts-jest": "26.x",
+    "ts-node": "9.x",
+    "typescript": "4.x"
+  },
+  "targets": {
+    "cdk-lambda": {
+      "context": "node",
+      "includeNodeModules": {
+        "aws-sdk": false
+      },
+      "sourceMap": false,
+      "minify": false,
+      "engines": {
+        "node": ">= 12"
+      }
+    }
+  }
+}

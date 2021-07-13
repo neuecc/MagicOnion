@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Benchmark.ClientLib.Internal
+{
+    internal readonly struct ValueStopwatch
+    {
+        static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
+
+        readonly long startTimestamp;
+
+        public static ValueStopwatch StartNew() => new ValueStopwatch(Stopwatch.GetTimestamp());
+
+        ValueStopwatch(long startTimestamp)
+        {
+            this.startTimestamp = startTimestamp;
+        }
+
+        public TimeSpan Elapsed => TimeSpan.FromTicks(this.ElapsedTicks);
+
+        public long ElapsedTicks
+        {
+            get
+            {
+                if (startTimestamp == 0)
+                {
+                    throw new InvalidOperationException("Detected invalid initialization(use 'default'), only to create from StartNew().");
+                }
+
+                var delta = Stopwatch.GetTimestamp() - startTimestamp;
+                return (long)(delta * TimestampToTicks);
+            }
+        }
+    }
+}
